@@ -9,3 +9,4 @@
 /frontend/dist/
 .DS_Store
 *.log
+/backend/.composer/
