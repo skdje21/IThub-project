@@ -31,9 +31,9 @@ class EquipmentController extends Controller
             'serial_number' => ['required', 'string', 'unique:equipment'],
         ]);
 
-        $equipment = Equipment::create($data);
+        $equipment = Equipment::create([...$data, 'status' => EquipmentStatus::Available]);
 
-        return (new EquipmentResource($equipment))
+        return (new EquipmentResource($equipment->load('assignedUser')))
             ->response()
             ->setStatusCode(201);
     }
