@@ -62,6 +62,13 @@
               <label>Серийный номер *</label>
               <input v-model="form.serial_number" required placeholder="SN-0001-0001" />
             </div>
+            <div class="form-group">
+              <label>Назначить сотруднику</label>
+              <select v-model="form.assigned_to">
+                <option value="">— Не назначено —</option>
+                <option v-for="u in users" :key="u.id" :value="u.id">{{ u.name }}</option>
+              </select>
+            </div>
             <div v-if="createError" class="form-error">{{ createError }}</div>
           </div>
           <div class="modal-footer">
@@ -116,7 +123,8 @@ const createError = ref('')
 const deleteTarget = ref(null)
 const deleting = ref(false)
 
-const form = reactive({ name: '', type: '', serial_number: '' })
+const form = reactive({ name: '', type: '', serial_number: '', assigned_to: '' })
+const users = ref([])
 
 const isAdmin = computed(() => auth.user?.role === 'admin')
 
@@ -126,8 +134,12 @@ const equipStatusLabel = (s) => equipStatusLabels[s] || s
 async function loadEquipment() {
   loading.value = true
   try {
-    const { data } = await api.get('/equipment')
-    items.value = data.data
+    const [eqRes, usersRes] = await Promise.all([
+      api.get('/equipment'),
+      api.get('/users'),
+    ])
+    items.value = eqRes.data.data
+    users.value = usersRes.data.data ?? usersRes.data
   } catch (e) {
     console.error(e)
   } finally {
@@ -161,6 +173,7 @@ async function createEquipment() {
     form.name = ''
     form.type = ''
     form.serial_number = ''
+    form.assigned_to = ''
     loadEquipment()
   } catch (e) {
     createError.value = e.response?.data?.message || 'Ошибка добавления'

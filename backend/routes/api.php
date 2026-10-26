@@ -38,5 +38,8 @@ Route::prefix('v1')->group(function () {
         // Reference data
         Route::get('departments', [DepartmentController::class, 'index']);
         Route::get('categories', [CategoryController::class, 'index']);
+        Route::get('users', function () {
+            return \App\Models\User::select('id', 'name')->orderBy('name')->get();
+        });
     });
 });

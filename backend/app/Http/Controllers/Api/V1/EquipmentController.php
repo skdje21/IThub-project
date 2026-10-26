@@ -29,9 +29,13 @@ class EquipmentController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'type' => ['required', 'string', 'max:255'],
             'serial_number' => ['required', 'string', 'unique:equipment'],
+            'assigned_to' => ['nullable', 'exists:users,id'],
         ]);
 
-        $equipment = Equipment::create([...$data, 'status' => EquipmentStatus::Available]);
+        $equipment = Equipment::create([
+            ...$data,
+            'status' => !empty($data['assigned_to']) ? EquipmentStatus::Assigned : EquipmentStatus::Available,
+        ]);
 
         return (new EquipmentResource($equipment->load('assignedUser')))
             ->response()
